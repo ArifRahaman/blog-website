@@ -1,107 +1,116 @@
 # Blog Website
 
-A comprehensive blog platform providing user authentication, post creation, comment handling, and notifications. This advanced project is built using Node.js and React, offering robust scalability and extensive functionality for blogging applications.
+A full-stack blog website that allows users to create, view, and manage posts. This platform also supports user authentication, commenting, and notifications for interactions like likes and follows.
 
 ## Features
 
-- **User Authentication**: Secure login and signup using JSON Web Token (JWT).
-- **Post Management**: Create, update, delete, and retrieve blog posts using RESTful endpoints.
-- **Comment System**: Add and manage comments on blog posts.
-- **Notifications**: Real-time notifications for likes, comments, and follows.
-- **Chat Functionality**: Manage chat sessions and messages.
-- **File Uploads**: Avatar and cover image uploads with Cloudinary integration.
+- User Authentication: Sign up, login, and update profile.
+- Post Management: Create, view, update, and delete posts.
+- Commenting System: Add and view comments on posts.
+- Notifications: Receive notifications for likes, comments, and follows.
+- Chat Functionality: Engage in chat sessions with stored messages.
+- Profile Management: Follow users and manage followers.
+- Upload System: Upload avatars and post covers.
 
 ## Tech Stack
 
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose, JSON Web Token, Cloudinary
-- **Frontend**: React, React Router, React Toastify, Tailwind CSS
-- **Utilities**: Axios, Draft.js, Framer Motion, Slugify
+- **Frontend**: React, Vite, Tailwind CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB with Mongoose
+- **Authentication**: JWT (JSON Web Tokens)
+- **File Uploads**: Multer & Cloudinary
+- **Styling**: Tailwind CSS
 
 ## Installation Instructions
 
-### Backend
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/ArifRahaman/blog-website.git
+   ```
+   
+2. **Backend Setup**:
+   ```bash
+   cd blog-website/backend
+   npm install
+   ```
 
-```bash
-cd backend
-npm install
-```
+3. **Frontend Setup**:
+   ```bash
+   cd ../frontend
+   npm install
+   ```
 
-### Frontend
-
-```bash
-cd frontend
-npm install
-```
+4. **Environment Variables**: Create a `.env` file in the `backend` directory and include the following variables:
+   ```env
+   MONGO_URI=<Your MongoDB URI>
+   JWT_SECRET=<Your JWT Secret>
+   CLOUDINARY_URL=<Your Cloudinary URL>
+   ```
 
 ## Usage Guide
 
-### Backend
-
-1. Start the server:
+1. **Run the Backend**:
    ```bash
+   cd backend
+   npm start
+   ```
+
+2. **Run the Frontend**:
+   ```bash
+   cd frontend
    npm run dev
    ```
-2. Access API endpoints at `http://localhost:5000/api`.
 
-### Frontend
-
-1. Start the development server:
-   ```bash
-   npm run dev
-   ```
-2. Open the application in your browser at `http://localhost:3000`.
+3. **Access the Application**: Open your browser and navigate to `http://localhost:3000`.
 
 ## Environment Variables
 
-Create a `.env` file in the `backend` directory with the following keys:
-
-- `JWT_SECRET`: Secret key for JWT token encryption.
 - `MONGO_URI`: MongoDB connection string.
-- `CLOUDINARY_API_KEY`: Cloudinary API key for image uploads.
-- `CLOUDINARY_API_SECRET`: Cloudinary API secret.
-- `CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name.
-- `GROQ_KEY`: API key for Groq operations.
+- `JWT_SECRET`: Secret key for JWT authentication.
+- `CLOUDINARY_URL`: Cloudinary URL for image uploads.
+- `GROQ_KEY`: Key for handling specific API requests.
+- `DEEPGRAM_KEY`, `DID_API_KEY`: Additional keys for extended functionalities.
 
 ## API Reference
 
-### Authentication Routes
+### Authentication
 
-- `POST /api/auth/signup`: Register a new user.
-- `POST /api/auth/login`: Authenticate a user and return a JWT token.
+- `POST /api/auth/signup` - Register a new user.
+- `POST /api/auth/login` - Authenticate an existing user.
+- `PUT /api/auth/:id` - Update user information.
+- `GET /api/auth/me` - Retrieve current user profile.
 
-### Post Routes
+### Posts
 
-- `POST /api/posts`: Create a new blog post.
-- `GET /api/posts`: Retrieve all blog posts.
-- `GET /api/posts/:slug`: Retrieve a blog post by slug.
-- `PUT /api/posts/:id`: Update a blog post.
-- `DELETE /api/posts/:id`: Delete a blog post.
+- `POST /api/posts` - Create a new post.
+- `GET /api/posts` - Retrieve all posts.
+- `GET /api/posts/:slug` - Retrieve a post by slug.
+- `PUT /api/posts/:id` - Update a post.
+- `DELETE /api/posts/:id` - Delete a post.
 
-### Comment Routes
+### Comments
 
-- `POST /api/comments`: Add a comment to a post.
-- `GET /api/comments/:postId`: Retrieve comments for a specific post.
+- `POST /api/comments` - Add a comment to a post.
+- `GET /api/comments/:postId` - Get comments for a specific post.
 
-### Notification Routes
+### Notifications
 
-- `GET /api/notifications`: Retrieve user notifications.
-- `POST /api/notifications/mark-read`: Mark notifications as read.
+- `GET /api/notifications` - Get all notifications.
+- `POST /api/notifications/mark-read` - Mark notifications as read.
 
-### Chat Routes
+### Chat
 
-- `GET /api/chats`: Retrieve chat messages for the authenticated user.
-- `GET /api/chats/:userId`: Retrieve messages for a specific user (admin access).
-- `POST /api/chats`: Send a new chat message.
-
-### Upload Routes
-
-- `POST /api/uploads/avatar`: Upload user avatar.
-- `POST /api/uploads/cover`: Upload post cover image.
+- `GET /api/chats` - Retrieve chat messages for the current user.
+- `GET /api/chats/:userId` - Retrieve chat messages for a specific user.
+- `POST /api/chats` - Send a new chat message.
 
 ## Contributing
 
-Contributions are welcome. Please submit a pull request with detailed changes and testing steps.
+Contributions are welcome! Please fork the repository and submit a pull request for review.
 
 ## License
 
 This project is licensed under the MIT License.
+
+---
+> 🤖 *Last automated update: 2026-03-06 16:29:52*
