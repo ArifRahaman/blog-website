@@ -146,8 +146,14 @@ flowchart TD
     class frontend_src_components_AuthContext_jsx frontend
 ```
 
+## Contributing
+Contributions to this project are welcome. Please ensure that any pull requests adhere to the following guidelines:
+- Include tests for any new features or bug fixes.
+- Follow the existing code style and structure.
+- Update documentation as necessary for any changes made.
+
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
-> 🤖 *Last automated update: 2026-03-07 00:59:39*
+> 🤖 *Last automated update: 2026-03-07 01:00:47*
