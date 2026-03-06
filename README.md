@@ -1,126 +1,97 @@
 # Blog Website
 
-The Blog Website is a sophisticated platform that integrates advanced chat features, user authentication, and content management capabilities. Designed for scalability and ease of use, it leverages modern technologies to deliver a seamless user experience.
+## Description
+This project is a sophisticated blog platform designed for advanced engineers. It features a robust backend powered by Node.js and Express, and a dynamic frontend built with React and Vite. The platform supports user authentication, post creation and management, notifications, and a unique chat interface for user interaction.
 
 ## Features
-
-- **User Authentication**: Secure login and signup with JWT-based authorization.
-- **Content Management**: Create, update, delete, and view posts with rich text support.
-- **Notifications**: Real-time notifications of likes, comments, and follows.
-- **Chat Functionality**: Chat sessions with message storage and retrieval.
-- **Profile Management**: User profiles with avatar upload and followers management.
+- User Authentication: Secure login and signup processes with JWT-based authentication.
+- Post Management: Create, update, delete, and view posts with rich content support.
+- Comments: Add and view comments on posts.
+- Notifications: Real-time notifications for likes, comments, and follows.
+- User Profiles: Manage user profiles including avatars and follow relationships.
+- Chat System: Interactive chat sessions with real-time message handling.
 
 ## Tech Stack
-
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose
-- **Frontend**: React, Vite, TailwindCSS
-- **Authentication**: JWT
-- **Deployment**: Cloudinary, Streamifier
+- **Backend**: Node.js, Express, MongoDB, Mongoose, JWT, Multer, Cloudinary
+- **Frontend**: React, Vite, TailwindCSS, Axios, React Router, React Toastify
+- **Authentication**: JSON Web Tokens (JWT)
+- **Database**: MongoDB
+- **Cloud Storage**: Cloudinary
 
 ## Installation Instructions
-
-### Backend
-
 1. Clone the repository:
    ```bash
    git clone https://github.com/ArifRahaman/blog-website.git
-   cd blog-website/backend
+   cd blog-website
    ```
-
-2. Install dependencies:
+2. Install backend dependencies:
    ```bash
+   cd backend
+   npm install
+   ```
+3. Install frontend dependencies:
+   ```bash
+   cd ../frontend
    npm install
    ```
 
-3. Set up environment variables:
-   Create a `.env` file in the `backend` directory with the following variables:
-   ```plaintext
-   MONGO_URI=<your_mongo_uri>
-   JWT_SECRET=<your_jwt_secret>
-   CLOUDINARY_API_KEY=<your_cloudinary_api_key>
-   CLOUDINARY_API_SECRET=<your_cloudinary_api_secret>
-   CLOUDINARY_CLOUD_NAME=<your_cloudinary_cloud_name>
-   ```
-
-4. Start the server:
+## Usage Guide
+### Backend
+1. Configure environment variables in the `backend/.env` file.
+2. Start the backend server:
    ```bash
+   cd backend
    npm start
    ```
 
 ### Frontend
-
-1. Navigate to the frontend directory:
+1. Start the frontend development server:
    ```bash
-   cd ../frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   Create a `.env` file in the `frontend` directory with the following variables:
-   ```plaintext
-   VITE_API_URL=<your_backend_api_url>
-   ```
-
-4. Start the development server:
-   ```bash
+   cd frontend
    npm run dev
    ```
 
-## Usage Guide
-
-- Navigate to `http://localhost:3000` to access the frontend.
-- Use the signup and login forms to create and access user accounts.
-- Create and manage posts through the provided UI.
-- Interact with other users through comments and likes.
-- Access chat features under your profile page.
-
 ## Environment Variables
-
-### Backend
-
-- `MONGO_URI`: MongoDB connection string.
 - `JWT_SECRET`: Secret key for JWT authentication.
-- `CLOUDINARY_API_KEY`: API key for Cloudinary.
-- `CLOUDINARY_API_SECRET`: API secret for Cloudinary.
-- `CLOUDINARY_CLOUD_NAME`: Cloud name for Cloudinary.
-
-### Frontend
-
-- `VITE_API_URL`: URL of the backend API.
+- `MONGO_URI`: MongoDB connection string.
+- `CLOUDINARY_URL`: Cloudinary API URL for image uploads.
+- `GROQ_KEY`, `DEEPGRAM_KEY`, `DID_API_KEY`: Keys for external API integrations.
 
 ## API Reference
+### Authentication
+- **POST** `/api/auth/signup`: Register a new user.
+- **POST** `/api/auth/login`: Authenticate an existing user.
+- **GET** `/api/auth/me`: Retrieve authenticated user details.
+- **PUT** `/api/auth/me/update`: Update user profile.
 
-### Auth Routes
+### Posts
+- **POST** `/api/posts`: Create a new post.
+- **GET** `/api/posts`: Retrieve all posts.
+- **GET** `/api/posts/:slug`: Retrieve a post by slug.
+- **PUT** `/api/posts/:id`: Update a post.
+- **DELETE** `/api/posts/:id`: Delete a post.
+- **POST** `/api/posts/:id/like`: Like a post.
+- **POST** `/api/posts/:id/comments`: Add a comment to a post.
 
-- `POST /api/auth/signup`: Register a new user.
-- `POST /api/auth/login`: Authenticate a user.
-- `GET /api/auth/me`: Fetch authenticated user details.
+### Comments
+- **POST** `/api/comments`: Add a comment.
+- **GET** `/api/comments/:postId`: Retrieve comments for a post.
 
-### Post Routes
+### Notifications
+- **GET** `/api/notifications`: Retrieve notifications.
+- **POST** `/api/notifications/mark-read`: Mark notifications as read.
+- **POST** `/api/notifications/clear`: Clear notifications.
 
-- `GET /api/posts`: Retrieve all posts.
-- `GET /api/posts/:slug`: Retrieve a post by slug.
-- `POST /api/posts`: Create a new post.
-- `PUT /api/posts/:id`: Update a post.
-- `DELETE /api/posts/:id`: Delete a post.
-
-### Chat Routes
-
-- `GET /api/chats`: Retrieve chat messages for the authenticated user.
-- `GET /api/chats/:userId`: Retrieve chat messages for a specific user.
-- `POST /api/chats`: Create a new chat message.
+### Chat
+- **GET** `/api/chats`: Retrieve chat messages for authenticated user.
+- **GET** `/api/chats/:userId`: Retrieve chat messages for a specific user (admin or owner).
+- **POST** `/api/chats`: Send a chat message.
 
 ## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request with your changes.
+Contributions are welcome. Please submit a pull request with detailed information about your changes.
 
 ## License
-
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
-> 🤖 *Last automated update: 2026-03-06 22:00:32*
+> 🤖 *Last automated update: 2026-03-06 22:03:35*
