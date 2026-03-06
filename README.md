@@ -1,116 +1,138 @@
 # Blog Website
 
-A feature-rich blog platform that allows users to create, manage, and interact with posts, comments, and notifications. The platform also supports user authentication and chat functionalities.
+## Description
+
+A comprehensive platform for blogging, allowing users to create, edit, and delete posts, as well as interact with others through comments and notifications. This application is designed to provide a seamless blogging experience with integrated user authentication and content management capabilities.
 
 ## Features
 
-- **User Authentication**: Secure sign-up, login, and profile management for users.
-- **Post Management**: Users can create, update, delete, and like posts.
-- **Commenting System**: Comment on posts with a structured comment model.
-- **Notifications**: Receive notifications for likes, comments, and follows.
-- **Chat Functionality**: Chat sessions and messages between users.
-- **Profile Management**: Follow other users and manage personal profiles.
-- **Image Upload**: Upload avatars and cover images for posts.
+- User authentication and authorization
+- Create, read, update, and delete blog posts
+- Commenting system on blog posts
+- Like and follow functionalities
+- User profiles with avatars and bios
+- Notifications for likes, comments, and follows
+- Real-time chat feature
+- Upload and manage profile pictures and post covers
 
 ## Tech Stack
 
-- **Backend**: Node.js, Express.js, MongoDB, Mongoose
-- **Frontend**: React, Vite, TailwindCSS
-- **Authentication**: JSON Web Tokens (JWT)
-- **Cloud Storage**: Cloudinary
-- **State Management**: React Context API
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose
+- **Frontend:** React.js, Vite, TailwindCSS
+- **Authentication:** JSON Web Tokens (JWT)
+- **Cloud Storage:** Cloudinary
+- **Real-time Features:** WebSockets
+- **Miscellaneous:** Axios, React Router, React Toastify
 
 ## Installation Instructions
 
-1. Clone the repository:
+1. **Clone the repository:**
 
-   ```bash
-   git clone https://github.com/ArifRahaman/blog-website.git
-   ```
+    ```bash
+    git clone https://github.com/ArifRahaman/blog-website.git
+    cd blog-website
+    ```
 
-2. Navigate to the backend folder and install dependencies:
+2. **Backend Setup:**
 
-   ```bash
-   cd backend
-   npm install
-   ```
+    ```bash
+    cd backend
+    npm install
+    ```
 
-3. Navigate to the frontend folder and install dependencies:
+3. **Frontend Setup:**
 
-   ```bash
-   cd ../frontend
-   npm install
-   ```
+    ```bash
+    cd frontend
+    npm install
+    ```
+
+4. **Environment Variables:**
+
+    Create a `.env` file in the `backend` directory:
+
+    ```
+    MONGO_URI=your_mongodb_connection_string
+    JWT_SECRET=your_jwt_secret
+    CLOUDINARY_URL=your_cloudinary_url
+    ```
+
+5. **Run the Application:**
+
+    - **Backend:**
+
+      ```bash
+      cd backend
+      npm start
+      ```
+
+    - **Frontend:**
+
+      ```bash
+      cd frontend
+      npm run dev
+      ```
 
 ## Usage Guide
 
-1. **Backend**:
-   - Start the backend server:
+1. **User Registration and Authentication:**
+   - Sign up and log in to access all features.
+   - Update profile with avatar and bio.
 
-     ```bash
-     cd backend
-     npm start
-     ```
+2. **Creating and Managing Posts:**
+   - Create posts using a rich text editor.
+   - Edit or delete your posts as needed.
 
-2. **Frontend**:
-   - Start the frontend development server:
+3. **Interacting with Content:**
+   - Comment and like posts.
+   - Follow other users to receive updates on their activities.
 
-     ```bash
-     cd frontend
-     npm run dev
-     ```
+4. **Real-time Chat:**
+   - Use the chat feature to communicate with other users in real-time.
 
-3. Access the application via `http://localhost:3000`.
+5. **Notifications:**
+   - Receive notifications for likes, comments, and follows.
 
 ## Environment Variables
 
-Create a `.env` file in the `backend` directory and set the following variables:
-
-```
-MONGO_URI=<your_mongodb_uri>
-JWT_SECRET=<your_jwt_secret>
-CLOUDINARY_URL=<your_cloudinary_url>
-GROQ_KEY=<your_groq_key>
-```
+- `MONGO_URI`: MongoDB connection string.
+- `JWT_SECRET`: Secret key for JWT authentication.
+- `CLOUDINARY_URL`: Cloudinary URL for image uploads.
+- `GEMINI_KEY`: (Optional) Key for external API integration.
+- `DEEPGRAM_KEY`: (Optional) Key for voice recognition services.
+- `DID_API_KEY`: (Optional) Key for additional API functionalities.
+- `GROQ_KEY`: (Optional) Key for specific API interactions.
 
 ## API Reference
 
-### Authentication
+- **Authentication Endpoints:**
+  - `POST /api/auth/signup`: User registration.
+  - `POST /api/auth/login`: User login.
+  - `GET /api/auth/me`: Get current user profile.
+  
+- **Post Endpoints:**
+  - `POST /api/posts`: Create a new post.
+  - `GET /api/posts`: Get all posts.
+  - `GET /api/posts/:slug`: Get a specific post by slug.
+  - `PUT /api/posts/:id`: Update a post.
+  - `DELETE /api/posts/:id`: Delete a post.
 
-- **POST /api/auth/signup**: Register a new user.
-- **POST /api/auth/login**: Authenticate an existing user.
+- **Comment Endpoints:**
+  - `POST /api/comments`: Add a comment to a post.
+  - `GET /api/comments/:postId`: Get comments for a post.
 
-### Posts
+- **Notification Endpoints:**
+  - `GET /api/notifications`: Get all notifications.
+  - `POST /api/notifications/mark-read`: Mark notifications as read.
 
-- **GET /api/posts**: Fetch all posts.
-- **GET /api/posts/:slug**: Fetch a specific post by slug.
-- **POST /api/posts**: Create a new post.
-- **PUT /api/posts/:id**: Update a post.
-- **DELETE /api/posts/:id**: Delete a post.
-
-### Comments
-
-- **POST /api/comments**: Add a comment to a post.
-- **GET /api/comments/:postId**: Fetch comments for a specific post.
-
-### Notifications
-
-- **GET /api/notifications**: Fetch user notifications.
-- **POST /api/notifications/mark-read**: Mark notifications as read.
-
-### Chats
-
-- **GET /api/chats**: Fetch all chat messages for the authenticated user.
-- **GET /api/chats/:userId**: Fetch chat messages for a specific user (admin or owner).
-- **POST /api/chats**: Send a chat message.
+- **User Endpoints:**
+  - `GET /api/users/:id`: Get user profile.
+  - `POST /api/users/:id/follow`: Follow a user.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and create a pull request with your changes.
+Contributions are welcome! Please fork the repository and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-> 🤖 *Last automated update: 2026-03-06 16:33:40*
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
