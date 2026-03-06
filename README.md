@@ -1,7 +1,7 @@
 # Blog Website
 
 ## Description
-This project is a sophisticated blog platform designed for advanced engineers. It features a robust backend powered by Node.js and Express, and a dynamic frontend built with React and Vite. The platform supports user authentication, post creation and management, notifications, and a unique chat interface for user interaction.
+This project is a sophisticated blog platform designed for advanced engineers. It features a robust backend powered by Node.js and Express, and a dynamic frontend built with React and Vite. The platform supports user authentication, post creation and management, notifications, and a unique chat interface for user interaction. The application architecture is modular, allowing for seamless scalability and maintainability. Key aspects include JWT-based authentication, a MongoDB database for efficient data storage, and Cloudinary for managing media uploads. The chat system is integrated with a real-time message handling mechanism, making the platform interactive and user-friendly.
 
 ## Features
 - User Authentication: Secure login and signup processes with JWT-based authentication.
@@ -146,14 +146,8 @@ flowchart TD
     class frontend_src_components_AuthContext_jsx frontend
 ```
 
-## Contributing
-Contributions to this project are welcome. Please ensure that any pull requests adhere to the following guidelines:
-- Include tests for any new features or bug fixes.
-- Follow the existing code style and structure.
-- Update documentation as necessary for any changes made.
-
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
-> 🤖 *Last automated update: 2026-03-07 01:00:47*
+> 🤖 *Last automated update: 2026-03-07 01:02:28*
