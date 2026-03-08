@@ -15,14 +15,17 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
+  // Handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Send login request to the server
       const res = await axios.post(`${BASE}/api/auth/login`, { email, password });
 
       if (res.data?.user && res.data?.token) {
+        // Successful login, update auth context and redirect
         login(res.data.user, res.data.token);
         toast.success("✅ Logged in successfully!");
         setTimeout(() => (window.location.href = "/"), 500);
@@ -30,6 +33,7 @@ export default function Login() {
         throw new Error("Invalid server response");
       }
     } catch (err) {
+      // Handle errors and display error message
       const errorMsg =
         err.response?.data?.error ||
         err.message ||
@@ -40,6 +44,7 @@ export default function Login() {
     }
   };
 
+  // Variants for container animation
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -53,15 +58,17 @@ export default function Login() {
     }
   };
 
+  // Variants for item animation
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
-      opacity: 1,
+      opacity: 1, 
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" }
     }
   };
 
+  // Variants for floating animation
   const floatingVariants = {
     animate: {
       y: [-10, 10, -10],
@@ -298,19 +305,3 @@ export default function Login() {
         {/* Floating Action Hint */}
         <motion.div
           className="absolute -bottom-16 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.5 }}
-        >
-          <motion.div
-            className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg text-sm text-gray-600"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            ✨ Secure & Fast Login
-          </motion.div>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
