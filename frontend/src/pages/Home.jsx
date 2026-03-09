@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || '';
-function getToken() { return localStorage.getItem('token'); }
+function getToken() { return localStorage.getItem('access_token'); }
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
