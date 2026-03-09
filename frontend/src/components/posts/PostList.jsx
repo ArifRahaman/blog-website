@@ -13,6 +13,7 @@ export default function PostsList() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Fetch posts from the API when the component mounts
     async function fetchPosts() {
       try {
         const res = await fetch(`${BASE}/api/posts`);
@@ -28,6 +29,7 @@ export default function PostsList() {
     fetchPosts();
   }, []);
 
+  // Calculate time ago from ISO date string
   const timeAgo = (iso) => {
     if (!iso) return "";
     const seconds = Math.floor((Date.now() - new Date(iso)) / 1000);
@@ -43,6 +45,7 @@ export default function PostsList() {
     return `${Math.floor(months / 12)}y`;
   };
 
+  // Animation variants for container and cards
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
@@ -52,12 +55,14 @@ export default function PostsList() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.36, ease: "easeOut" } },
   };
 
+  // Filter posts based on search query
   const filtered = posts.filter((p) => {
     if (!q) return true;
     const t = q.toLowerCase();
     return (p.title || "").toLowerCase().includes(t) || (p.summary || "").toLowerCase().includes(t) || (p.tags || []).join(" ").toLowerCase().includes(t);
   });
 
+  // Display loading message while fetching posts
   if (loading)
     return (
       <div className="bw-grid-bg min-h-screen flex items-center justify-center p-8">
@@ -67,6 +72,7 @@ export default function PostsList() {
       </div>
     );
 
+  // Display error message if fetching posts fails
   if (error)
     return (
       <div className="bw-grid-bg min-h-screen flex items-center justify-center p-8">
@@ -104,6 +110,7 @@ export default function PostsList() {
             variants={containerVariants}
           >
             {filtered.map((post) => {
+              // Determine image source URL for post cover
               const imgSrc = post.coverUrl ? (post.coverUrl.startsWith("http") ? post.coverUrl : `${BASE}${post.coverUrl}`) : null;
               return (
                 <motion.article
