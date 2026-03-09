@@ -9,30 +9,33 @@ export default function HomePage() {
   const [cursor, setCursor] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
+  // Load posts when the component mounts
   useEffect(() => { loadPosts(); }, []);
 
+  // Function to load posts from the API
   async function loadPosts(nextCursor = null) {
-    if (loading) return;
+    if (loading) return; // Prevent loading if already in progress
     setLoading(true);
     try {
       const qs = new URLSearchParams();
-      qs.set('limit', '10');
-      if (nextCursor) qs.set('cursor', nextCursor);
+      qs.set('limit', '10'); // Set limit for pagination
+      if (nextCursor) qs.set('cursor', nextCursor); // Add cursor for pagination if available
       const res = await fetch(`${API_BASE}/api/posts?${qs.toString()}`, {
         headers: { Authorization: getToken() ? `Bearer ${getToken()}` : undefined }
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) throw new Error('Failed'); // Handle fetch failure
       const data = await res.json();
-      setPosts(p => (nextCursor ? [...p, ...data.items] : data.items));
-      setCursor(data.nextCursor || null);
-      setHasMore(Boolean(data.nextCursor));
+      setPosts(p => (nextCursor ? [...p, ...data.items] : data.items)); // Append or replace posts
+      setCursor(data.nextCursor || null); // Update cursor for next page
+      setHasMore(Boolean(data.nextCursor)); // Determine if more posts are available
     } catch (e) {
-      console.warn('loadPosts', e);
-    } finally { setLoading(false); }
+      console.warn('loadPosts', e); // Log any errors
+    } finally { setLoading(false); } // Reset loading state
   }
 
+  // Handle new post addition
   async function handlePosted(newPost) {
-    setPosts(p => [newPost, ...p]);
+    setPosts(p => [newPost, ...p]); // Prepend new post to the list
   }
 
   return (
@@ -96,8 +99,14 @@ export default function HomePage() {
               <div className="p-8 bg-white rounded text-center text-slate-500">No posts yet — be the first!</div>
             ) : posts.map(p => (
               <PostCard key={p.id || p._id} post={p} onLike={async (id)=>{
+                // Increment likes count optimistically
                 setPosts(prev => prev.map(x => x.id===id?{...x, likesCount:(x.likesCount||0)+1}:x));
-                try { await fetch(`${API_BASE}/api/posts/${id}/like`,{method:'POST', headers:{Authorization:getToken()?`Bearer ${getToken()}`:undefined}}); } catch(e){console.warn(e);}
+                try { 
+                  // Send like request to the server
+                  await fetch(`${API_BASE}/api/posts/${id}/like`,{method:'POST', headers:{Authorization:getToken()?`Bearer ${getToken()}`:undefined}}); 
+                } catch(e){
+                  console.warn(e); // Log any errors
+                }
               }} onComment={(id)=>{}} />
             ))}
 
@@ -142,28 +151,29 @@ function CreatePost({ onPosted }) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
 
+  // Submit a new post
   async function submit() {
-    if (!text.trim()) return;
+    if (!text.trim()) return; // Do nothing if text is empty
     setSending(true);
     const temp = {
-      _id: `temp-${Date.now()}`,
+      _id: `temp-${Date.now()}`, // Temporary ID for optimistic UI update
       content: text,
       author: { username: 'You', avatarUrl: null },
       createdAt: new Date().toISOString(),
       likesCount: 0,
       commentsCount: 0,
     };
-    onPosted && onPosted(temp);
+    onPosted && onPosted(temp); // Optimistically add post to UI
 
     try {
       const res = await fetch(`${API_BASE}/api/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: getToken() ? `Bearer ${getToken()}` : undefined }, body: JSON.stringify({ content: text }) });
-      if (!res.ok) throw new Error('post failed');
+      if (!res.ok) throw new Error('post failed'); // Handle post failure
       const real = await res.json();
     } catch (e) {
-      console.warn(e);
+      console.warn(e); // Log any errors
     } finally {
-      setText('');
-      setSending(false);
+      setText(''); // Clear text input
+      setSending(false); // Reset sending state
     }
   }
 
@@ -214,19 +224,21 @@ function ChatWidget() {
   const [messages, setMessages] = useState([]);
   const containerRef = useRef(null);
 
+  // Scroll to the bottom of the chat when messages change
   useEffect(()=>{ if(containerRef.current) containerRef.current.scrollTop = containerRef.current.scrollHeight; }, [messages]);
 
+  // Send a message to the chat bot
   async function send() {
-    if (!txt.trim()) return;
+    if (!txt.trim()) return; // Do nothing if text is empty
     const userMsg = { from: 'me', text: txt, id: `m-${Date.now()}` };
-    setMessages(m=>[...m, userMsg]);
-    setTxt('');
+    setMessages(m=>[...m, userMsg]); // Add user message to chat
+    setTxt(''); // Clear input field
     try {
       const res = await fetch(`${API_BASE}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: getToken()?`Bearer ${getToken()}`:undefined }, body: JSON.stringify({ message: userMsg.text }) });
       const data = await res.json();
-      setMessages(m=>[...m, { from: 'bot', text: data.reply || data.text || "(no reply)" }]);
+      setMessages(m=>[...m, { from: 'bot', text: data.reply || data.text || "(no reply)" }]); // Add bot reply to chat
     } catch (e) {
-      setMessages(m=>[...m, { from: 'bot', text: 'Send failed (network).' }]);
+      setMessages(m=>[...m, { from: 'bot', text: 'Send failed (network).' }]); // Handle send failure
     }
   }
 
