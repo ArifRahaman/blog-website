@@ -15,17 +15,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
-  // Handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Send login request to the server
       const res = await axios.post(`${BASE}/api/auth/login`, { email, password });
 
       if (res.data?.user && res.data?.token) {
-        // Successful login, update auth context and redirect
         login(res.data.user, res.data.token);
         toast.success("✅ Logged in successfully!");
         setTimeout(() => (window.location.href = "/"), 500);
@@ -33,7 +30,6 @@ export default function Login() {
         throw new Error("Invalid server response");
       }
     } catch (err) {
-      // Handle errors and display error message
       const errorMsg =
         err.response?.data?.error ||
         err.message ||
@@ -44,7 +40,6 @@ export default function Login() {
     }
   };
 
-  // Variants for container animation
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -58,7 +53,6 @@ export default function Login() {
     }
   };
 
-  // Variants for item animation
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -68,7 +62,6 @@ export default function Login() {
     }
   };
 
-  // Variants for floating animation
   const floatingVariants = {
     animate: {
       y: [-10, 10, -10],
@@ -83,7 +76,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
       <motion.div
         className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-10 blur-xl"
         variants={floatingVariants}
@@ -108,16 +100,13 @@ export default function Login() {
         initial="hidden"
         animate="visible"
       >
-        {/* Glassmorphism Card */}
         <motion.div
           className="backdrop-blur-xl bg-white/80 border border-white/20 shadow-2xl rounded-3xl p-8 relative overflow-hidden"
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
           
-          {/* Header */}
           <motion.div
             className="text-center mb-8 relative z-10"
             variants={itemVariants}
@@ -136,7 +125,6 @@ export default function Login() {
           </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-            {/* Email Field */}
             <motion.div variants={itemVariants}>
               <motion.div
                 className={`relative group ${
@@ -168,7 +156,6 @@ export default function Login() {
               </motion.div>
             </motion.div>
 
-            {/* Password Field */}
             <motion.div variants={itemVariants}>
               <motion.div
                 className={`relative group ${
@@ -231,7 +218,6 @@ export default function Login() {
               </motion.div>
             </motion.div>
 
-            {/* Submit Button */}
             <motion.div variants={itemVariants}>
               <motion.button
                 type="submit"
@@ -282,7 +268,6 @@ export default function Login() {
               </motion.button>
             </motion.div>
 
-            {/* Footer */}
             <motion.div
               variants={itemVariants}
               className="text-center pt-4"
@@ -298,10 +283,3 @@ export default function Login() {
                   Create one now
                 </motion.a>
               </p>
-            </motion.div>
-          </form>
-        </motion.div>
-
-        {/* Floating Action Hint */}
-        <motion.div
-          className="absolute -bottom-16 left-1/2 transform -translate-x-1/2"
