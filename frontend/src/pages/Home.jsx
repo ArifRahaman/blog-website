@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 
-// Lightweight single-file homepage that includes:
-// - Hero + features (your original layout)
-// - CreatePost box (optimistic post)
-// - Feed (loads /api/posts, paginated)
-// - PostCard (renders ***bold*** and ```code``` blocks)
-// - Floating ChatWidget that hits /api/chat
-// NOTE: adapt API URLs and auth (localStorage token) to your backend.
-
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 function getToken() { return localStorage.getItem('token'); }
 
@@ -31,7 +23,6 @@ export default function HomePage() {
       });
       if (!res.ok) throw new Error('Failed');
       const data = await res.json();
-      // expect { items: [], nextCursor }
       setPosts(p => (nextCursor ? [...p, ...data.items] : data.items));
       setCursor(data.nextCursor || null);
       setHasMore(Boolean(data.nextCursor));
@@ -41,13 +32,11 @@ export default function HomePage() {
   }
 
   async function handlePosted(newPost) {
-    // optimistic: prepend
     setPosts(p => [newPost, ...p]);
   }
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
-      {/* HERO */}
       <header className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white">
         <div className="max-w-6xl mx-auto px-6 py-20 flex flex-col lg:flex-row items-center gap-8">
           <div className="lg:w-1/2">
@@ -76,9 +65,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* MAIN LAYOUT */}
       <section className="max-w-6xl mx-auto px-6 py-14 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT: About / features */}
         <div className="lg:col-span-1">
           <div className="rounded-lg border p-4 bg-white shadow-sm mb-6">
             <h4 className="font-medium">Who benefits</h4>
@@ -99,7 +86,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* CENTER: Feed */}
         <div className="lg:col-span-2">
           <div className="mb-4">
             <CreatePost onPosted={handlePosted} />
@@ -110,10 +96,9 @@ export default function HomePage() {
               <div className="p-8 bg-white rounded text-center text-slate-500">No posts yet — be the first!</div>
             ) : posts.map(p => (
               <PostCard key={p.id || p._id} post={p} onLike={async (id)=>{
-                // optimistic like toggle
                 setPosts(prev => prev.map(x => x.id===id?{...x, likesCount:(x.likesCount||0)+1}:x));
                 try { await fetch(`${API_BASE}/api/posts/${id}/like`,{method:'POST', headers:{Authorization:getToken()?`Bearer ${getToken()}`:undefined}}); } catch(e){console.warn(e);}
-              }} onComment={(id)=>{/* open comment UI (left as exercise) */}} />
+              }} onComment={(id)=>{}} />
             ))}
 
             {hasMore && (
@@ -125,7 +110,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA + footer */}
       <section className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white py-12">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
@@ -154,9 +138,6 @@ export default function HomePage() {
   );
 }
 
-
-/* ---------------------- Subcomponents ---------------------- */
-
 function CreatePost({ onPosted }) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -178,11 +159,8 @@ function CreatePost({ onPosted }) {
       const res = await fetch(`${API_BASE}/api/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: getToken() ? `Bearer ${getToken()}` : undefined }, body: JSON.stringify({ content: text }) });
       if (!res.ok) throw new Error('post failed');
       const real = await res.json();
-      // replace temp with real
-      // simple strategy: no-op (server will be retrieved on next load) or you can implement replace logic
     } catch (e) {
       console.warn(e);
-      // ideally show error & remove optimistic post
     } finally {
       setText('');
       setSending(false);
