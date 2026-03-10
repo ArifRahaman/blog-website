@@ -1,17 +1,21 @@
-// ChatAppSingle.jsx
+// Import necessary React hooks and components
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
+// Define the base URL for API requests, using environment variable or default to localhost
 const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000';
 
+// Function to retrieve stored token from local storage
 function getStoredToken() {
   return localStorage.getItem('token');
 }
+
+// Function to generate a local storage key based on the token
 const LOCAL_KEY = (token) => `chats_single_${token || 'anon'}_default_main`;
 
-// small renderer: turns ***bold*** into <strong> and ```code blocks``` into <pre><code>
+// Function to render text with bold formatting using <strong> tags
 function renderInlineBold(text) {
   const nodes = [];
-  const re = /\*\*\*(.+?)\*\*\*/g; // matches ***text***
+  const re = /\*\*\*(.+?)\*\*\*/g; // Regular expression to match ***text***
   let lastIndex = 0;
   let match;
   let key = 0;
@@ -36,12 +40,12 @@ function renderInlineBold(text) {
   return nodes.length ? nodes : [text];
 }
 
+// Function to render message content, handling code blocks and bold text
 function renderMessageContent(content) {
-  // split on triple backticks to detect code fences
-  const parts = content.split(/```/g);
+  const parts = content.split(/```/g); // Split content on triple backticks for code blocks
   return parts.map((part, idx) => {
     if (idx % 2 === 1) {
-      // code block
+      // Render code block
       return (
         <pre key={`code-${idx}`} className="rounded p-3 mt-2 mb-2 overflow-auto bg-gray-900 text-sm text-slate-100 font-mono">
           <code>{part}</code>
@@ -49,7 +53,7 @@ function renderMessageContent(content) {
       );
     }
 
-    // normal text: convert ***bold*** -> <strong>
+    // Render normal text with bold formatting
     const inline = renderInlineBold(part);
     return (
       <span key={`txt-${idx}`} className="whitespace-pre-wrap">
@@ -59,22 +63,23 @@ function renderMessageContent(content) {
   });
 }
 
+// Main component for single chat application
 export default function ChatAppSingle() {
-  const token = getStoredToken();
-  const [messages, setMessages] = useState([]);
-  const [composerText, setComposerText] = useState('');
-  const [sending, setSending] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
-  const abortRef = useRef(null);
+  const token = getStoredToken(); // Retrieve token from local storage
+  const [messages, setMessages] = useState([]); // State to store chat messages
+  const [composerText, setComposerText] = useState(''); // State for text input in composer
+  const [sending, setSending] = useState(false); // State to track if a message is being sent
+  const [loading, setLoading] = useState(false); // State to track loading status
+  const bottomRef = useRef(null); // Ref to track the bottom of the message list
+  const abortRef = useRef(null); // Ref to handle aborting fetch requests
 
-  // track currently playing audio url so we can revoke it after end
+  // Ref to track the currently playing audio URL for cleanup
   const audioUrlRef = useRef(null);
 
-  // If you want bot replies to auto-play upon arrival, set this true.
-  // NOTE: autoplay can be blocked by browsers until the user interacts with the page.
+  // Flag to determine if bot replies should auto-play audio
   const autoPlayBotAudio = false;
 
+  // Function to fetch messages from the server or local storage
   const fetchMessages = useCallback(async () => {
     if (!token) {
       try {
@@ -128,18 +133,19 @@ export default function ChatAppSingle() {
     }
   }, [token]);
 
+  // Effect to fetch messages when the component mounts or token changes
   useEffect(() => {
     fetchMessages();
   }, [fetchMessages]);
 
+  // Effect to scroll to the bottom of the message list when messages change
   useEffect(() => {
     if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // SPEAK: calls /api/speak and plays audio
+  // Function to send text to the /api/speak endpoint and play audio
   async function speakText(text) {
     if (!text) return;
-    // make sure user has interacted before trying autoplay in some browsers
     try {
       const res = await fetch(`${BASE}/api/speak`, {
         method: 'POST',
@@ -160,7 +166,7 @@ export default function ChatAppSingle() {
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
 
-      // cleanup previously created object URL
+      // Cleanup previously created object URL
       if (audioUrlRef.current) {
         try {
           URL.revokeObjectURL(audioUrlRef.current);
@@ -171,10 +177,10 @@ export default function ChatAppSingle() {
       audioUrlRef.current = url;
       const audio = new Audio(url);
       audio.play().catch((err) => {
-        // autoplay may be blocked; log and ignore
+        // Autoplay may be blocked; log and ignore
         console.warn('Audio play blocked', err);
       });
-      // revoke when finished to avoid memory leak
+      // Revoke URL when audio ends to avoid memory leak
       audio.onended = () => {
         try {
           URL.revokeObjectURL(url);
@@ -186,6 +192,7 @@ export default function ChatAppSingle() {
     }
   }
 
+  // Function to handle sending a message
   async function handleSend() {
     const text = composerText.trim();
     if (!text) return;
@@ -258,9 +265,8 @@ export default function ChatAppSingle() {
         return next;
       });
 
-      // if you want to auto play bot audio (may be blocked by browser), check flag
+      // Auto-play bot audio if flag is set and content exists
       if (autoPlayBotAudio && botMessage && botMessage.content) {
-        // best effort
         speakText(botMessage.content);
       }
     } catch (err) {
@@ -285,6 +291,7 @@ export default function ChatAppSingle() {
     }
   }
 
+  // Function to handle keydown events in the composer, sending message on Ctrl+Enter
   function onComposerKeyDown(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
@@ -292,87 +299,10 @@ export default function ChatAppSingle() {
     }
   }
 
+  // Render message indicating no token found if token is absent
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="bg-white p-6 rounded shadow max-w-lg text-center">
           <h3 className="text-lg font-semibold mb-2">No token found</h3>
           <p className="text-sm text-gray-600">
-            Please set a token in localStorage:{' '}
-            <code>localStorage.setItem('token','YOUR_TOKEN')</code>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex flex-col items-center p-4 bg-gray-50">
-      <div className="w-full max-w-2xl flex-1 flex flex-col">
-        <header className="py-4">
-          <h1 className="text-2xl font-semibold">Chatbot</h1>
-        </header>
-
-        <div className="flex-1 overflow-auto bg-white rounded-lg p-4 border border-gray-200 mb-4">
-          {loading ? (
-            <div className="text-sm text-gray-400 text-center py-8">Loading messages…</div>
-          ) : messages.length === 0 ? (
-            <div className="text-sm text-gray-400 text-center py-8">No messages yet. Say hi 👋</div>
-          ) : (
-            messages.map((m) => (
-              <div
-                key={m._id}
-                className={`p-3 rounded-lg mb-3 max-w-[80%] flex items-start ${
-                  m.sender === 'user' ? 'bg-sky-600 text-white self-end ml-auto' : 'bg-gray-100 text-gray-900 mr-auto'
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="text-sm">{renderMessageContent(m.content)}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {new Date(m.timestamp || Date.now()).toLocaleString()}
-                  </div>
-                </div>
-
-                {/* show speak button only for bot messages (and not for system errors) */}
-                {m.sender !== 'user' && !m._system && (
-                  <div className="ml-3 flex-shrink-0">
-                    <button
-                      onClick={() => speakText(m.content)}
-                      title="Play speech"
-                      className="px-2 py-1 rounded bg-white border hover:bg-gray-50 text-gray-700"
-                    >
-                      🔊
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-          <div ref={bottomRef} />
-        </div>
-
-        <div className="bg-white p-4 rounded-lg border border-gray-200 shadow">
-          <div className="flex gap-3">
-            <textarea
-              value={composerText}
-              onChange={(e) => setComposerText(e.target.value)}
-              onKeyDown={onComposerKeyDown}
-              rows={3}
-              placeholder="Type a message — Ctrl/Cmd+Enter to send"
-              className="flex-1 border border-gray-300 rounded p-3 resize-none"
-              disabled={sending}
-            />
-            <div className="flex flex-col gap-2">
-              <button onClick={() => setComposerText('')} className="px-3 py-2 border rounded bg-gray-100" disabled={!composerText}>
-                Clear
-              </button>
-              <button onClick={handleSend} className="px-4 py-2 bg-sky-600 text-white rounded" disabled={!composerText || sending}>
-                {sending ? 'Sending…' : 'Send'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
