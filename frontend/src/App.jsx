@@ -1,78 +1,3 @@
-// import React from "react";
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import { ToastContainer, toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-
-// // Only import what we actually have for now
-// import Signup from "./components/auth/Signup";
-
-// // Temporary Navbar
-// const Navbar = () => {
-//   const user = JSON.parse(localStorage.getItem("user") || "null");
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("token");
-//     localStorage.removeItem("user");
-//     toast.info("Logged out");
-//     window.location.href = "/";
-//   };
-
-//   return (
-//     <nav
-//       style={{
-//         padding: 12,
-//         borderBottom: "1px solid #eee",
-//         display: "flex",
-//         gap: 12,
-//       }}
-//     >
-//       <a href="/" style={{ fontWeight: "bold" }}>
-//         Brand
-//       </a>
-//       <a href="/">Home</a>
-//       {user ? (
-//         <>
-//           <a href="/create">Create</a>
-//           <a href="/profile">{user.username || "Profile"}</a>
-//           <button onClick={handleLogout} style={{ marginLeft: 8 }}>
-//             Logout
-//           </button>
-//         </>
-//       ) : (
-//         <>
-//           <a href="/login">Login</a>
-//           <a href="/signup">Signup</a>
-//         </>
-//       )}
-//     </nav>
-//   );
-// };
-
-// export default function App() {
-//   return (
-//     <>
-//       <ToastContainer
-//         position="top-right"
-//         autoClose={3000}
-//         hideProgressBar={false}
-//         newestOnTop={true}
-//         closeOnClick
-//         pauseOnHover
-//         draggable
-//         theme="colored"
-//       />
-
-//       <BrowserRouter>
-//         <Navbar />
-//         <main style={{ padding: 16 }}>
-//           <Routes>
-//             <Route path="/signup" element={<Signup />} />
-//           </Routes>
-//         </main>
-//       </BrowserRouter>
-//     </>
-//   );
-// }
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -89,8 +14,11 @@ import PostView from "./components/posts/PostView"; // ✅ Use the real post vie
 import Profile from "./pages/Profile";
 import Chatai from "./components/chatai/Chatai"; // ✅ Use the real Chatai component
 import HomePage from "./pages/Home";
+
 export default function App() {
   return (
+    // AuthProvider is a context provider that wraps the entire application.
+    // It provides authentication state and methods to all components within the app.
     <AuthProvider>
       <ToastContainer
         position="top-right"
@@ -109,6 +37,8 @@ export default function App() {
           <Routes>
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
+            {/* ProtectedRoute is a component that checks if a user is authenticated.
+                If not, it redirects them to the login page. Otherwise, it renders the child component. */}
             <Route
               path="/create"
               element={
