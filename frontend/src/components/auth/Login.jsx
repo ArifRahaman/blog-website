@@ -15,31 +15,36 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
+  // Handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Send login request to the server
       const res = await axios.post(`${BASE}/api/auth/login`, { email, password });
 
+      // Check if the response contains user and token
       if (res.data?.user && res.data?.token) {
-        login(res.data.user, res.data.token);
+        login(res.data.user, res.data.token); // Update auth context with user data
         toast.success("✅ Logged in successfully!");
-        setTimeout(() => (window.location.href = "/"), 500);
+        setTimeout(() => (window.location.href = "/"), 500); // Redirect after successful login
       } else {
         throw new Error("Invalid server response");
       }
     } catch (err) {
+      // Handle errors and display appropriate message
       const errorMsg =
         err.response?.data?.error ||
         err.message ||
         "Something went wrong. Please try again.";
       toast.error(`❌ ${errorMsg}`);
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state
     }
   };
 
+  // Animation variants for container
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -53,6 +58,7 @@ export default function Login() {
     }
   };
 
+  // Animation variants for individual items
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -62,6 +68,7 @@ export default function Login() {
     }
   };
 
+  // Animation variants for floating elements
   const floatingVariants = {
     animate: {
       y: [-10, 10, -10],
