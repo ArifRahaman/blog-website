@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Lazy load components for better performance
 const Signup = React.lazy(() => import("./components/auth/Signup"));
 const Login = React.lazy(() => import("./components/auth/Login"));
 const AuthProvider = React.lazy(() => import("./components/AuthContext"));
