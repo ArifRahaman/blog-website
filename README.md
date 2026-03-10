@@ -142,6 +142,7 @@ This project is licensed under the ISC License.
 ```mermaid
 flowchart TD
     backend_controllers_commentController_js["controllers/commentController.js"]
+    backend_controllers_postControllers_js["controllers/postControllers.js"]
     backend_middleware_auth_js["middleware/auth.js"]
     backend_models_ChatSession_js["models/ChatSession.js"]
     backend_models_Notification_js["models/Notification.js"]
@@ -149,7 +150,6 @@ flowchart TD
     backend_models_User_js["models/User.js"]
     backend_routes_auth_js["routes/auth.js"]
     backend_routes_commentRoutes_js["routes/commentRoutes.js"]
-    backend_routes_notifications_js["routes/notifications.js"]
     backend_routes_postRoutes_js["routes/postRoutes.js"]
     backend_routes_posts_js["routes/posts.js"]
     backend_routes_uploadRoutes_js["routes/uploadRoutes.js"]
@@ -157,30 +157,31 @@ flowchart TD
     frontend_src_App_jsx["src/App.jsx"]
     frontend_src_components_AuthContext_jsx["components/AuthContext.jsx"]
 
-    backend_routes_commentRoutes_js --> backend_middleware_auth_js
-    backend_routes_commentRoutes_js --> backend_controllers_commentController_js
-    backend_models_User_js --> backend_models_ChatSession_js
     backend_controllers_commentController_js --> backend_models_Post_js
+    backend_routes_commentRoutes_js --> backend_controllers_commentController_js
+    backend_routes_commentRoutes_js --> backend_middleware_auth_js
+    backend_controllers_postControllers_js --> backend_models_Post_js
     backend_middleware_auth_js --> backend_models_User_js
-    backend_routes_auth_js --> backend_middleware_auth_js
     backend_routes_auth_js --> backend_models_User_js
+    backend_routes_auth_js --> backend_middleware_auth_js
+    backend_models_User_js --> backend_models_ChatSession_js
     backend_routes_postRoutes_js --> backend_middleware_auth_js
     backend_routes_postRoutes_js --> backend_models_Post_js
+    backend_routes_postRoutes_js --> backend_controllers_postControllers_js
     backend_routes_postRoutes_js --> backend_models_Notification_js
-    backend_routes_notifications_js --> backend_middleware_auth_js
-    backend_routes_notifications_js --> backend_models_Notification_js
-    backend_routes_posts_js --> backend_middleware_auth_js
-    backend_routes_posts_js --> backend_models_Post_js
-    backend_routes_posts_js --> backend_models_User_js
-    backend_routes_posts_js --> backend_models_Notification_js
-    backend_routes_users_js --> backend_middleware_auth_js
     backend_routes_users_js --> backend_models_User_js
+    backend_routes_users_js --> backend_middleware_auth_js
+    backend_routes_posts_js --> backend_models_Notification_js
+    backend_routes_posts_js --> backend_models_Post_js
+    backend_routes_posts_js --> backend_middleware_auth_js
+    backend_routes_posts_js --> backend_models_User_js
     frontend_src_App_jsx --> frontend_src_components_AuthContext_jsx
 
     classDef backend fill:#1a1a2e,stroke:#7c6cf8,color:#e8eaf6
     classDef frontend fill:#0d1b2a,stroke:#00e8a2,color:#e8eaf6
     classDef config fill:#1a0a0a,stroke:#f5a623,color:#e8eaf6
     class backend_controllers_commentController_js backend
+    class backend_controllers_postControllers_js backend
     class backend_middleware_auth_js backend
     class backend_models_ChatSession_js backend
     class backend_models_Notification_js backend
@@ -188,7 +189,6 @@ flowchart TD
     class backend_models_User_js backend
     class backend_routes_auth_js backend
     class backend_routes_commentRoutes_js backend
-    class backend_routes_notifications_js backend
     class backend_routes_postRoutes_js backend
     class backend_routes_posts_js backend
     class backend_routes_uploadRoutes_js backend
@@ -198,4 +198,4 @@ flowchart TD
 ```
 
 ---
-> 🤖 *Last automated update: 2026-03-10 21:31:50*
+> 🤖 *Last automated update: 2026-03-10 22:53:46*
