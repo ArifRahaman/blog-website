@@ -18,70 +18,70 @@ const HomePage = React.lazy(() => import("./pages/Home"));
 
 export default function App() {
   return (
-    <AuthProvider>
+    <AuthProvider>  {/* Wrap the application with AuthProvider for authentication context */}
       <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
+        position="top-right"  {/* Position the toast notifications at the top-right corner */}
+        autoClose={3000}  {/* Automatically close the toast after 3000ms */}
+        hideProgressBar={false}  {/* Show the progress bar in the toast */}
+        newestOnTop={true}  {/* Display the newest toast on top */}
+        closeOnClick  {/* Allow closing the toast by clicking on it */}
+        pauseOnHover  {/* Pause the auto-close timer when hovering over the toast */}
+        draggable  {/* Allow dragging the toast */}
+        theme="colored"  {/* Use colored theme for the toast notifications */}
       />
 
-      <BrowserRouter>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Navbar />
-          <main className="p-0 pt-16">
-            <Routes>
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
+      <BrowserRouter>  {/* Use BrowserRouter for handling routing in the application */}
+        <Suspense fallback={<div>Loading...</div>}>  {/* Display a loading message while components are being loaded */}
+          <Navbar />  {/* Render the Navbar component */}
+          <main className="p-0 pt-16">  {/* Main content area with padding */}
+            <Routes>  {/* Define the routes for the application */}
+              <Route path="/signup" element={<Signup />} />  {/* Route for signup page */}
+              <Route path="/login" element={<Login />} />  {/* Route for login page */}
               <Route
                 path="/create"
                 element={
-                  <ProtectedRoute>
-                    <CreatePost />
+                  <ProtectedRoute>  {/* Protect the CreatePost route */}
+                    <CreatePost />  {/* Render CreatePost component */}
                   </ProtectedRoute>
                 }
               />
               <Route
                 path="/posts"
                 element={
-                  <ProtectedRoute>
-                    <PostsList />
+                  <ProtectedRoute>  {/* Protect the PostsList route */}
+                    <PostsList />  {/* Render PostsList component */}
                   </ProtectedRoute>
                 }
               />
               <Route
                 path="/"
                 element={
-                  <ProtectedRoute>
-                    <HomePage />
+                  <ProtectedRoute>  {/* Protect the HomePage route */}
+                    <HomePage />  {/* Render HomePage component */}
                   </ProtectedRoute>
                 }
               />
               <Route
                 path="/chat"
                 element={
-                  <ProtectedRoute>
-                    <Chatai />
+                  <ProtectedRoute>  {/* Protect the Chatai route */}
+                    <Chatai />  {/* Render Chatai component */}
                   </ProtectedRoute>
                 }
               />
               <Route
                 path="/posts/:slug"
                 element={
-                  <ProtectedRoute>
-                    <PostView />
+                  <ProtectedRoute>  {/* Protect the PostView route */}
+                    <PostView />  {/* Render PostView component */}
                   </ProtectedRoute>
                 }
               />
               <Route
                 path="/profile"
                 element={
-                  <ProtectedRoute>
-                    <Profile />
+                  <ProtectedRoute>  {/* Protect the Profile route */}
+                    <Profile />  {/* Render Profile component */}
                   </ProtectedRoute>
                 }
               />
