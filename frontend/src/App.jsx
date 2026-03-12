@@ -1,3 +1,4 @@
+```javascript
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -17,69 +18,69 @@ import HomePage from "./pages/Home";
 
 export default function App() {
   return (
-    <AuthProvider>  {/* Provides authentication context to the entire app */}
+    <AuthProvider>
       <ToastContainer
-        position="top-right"  {/* Toast messages appear in top-right corner */}
-        autoClose={3000}  {/* Toast messages close automatically after 3 seconds */}
-        hideProgressBar={false}  {/* Displays progress bar on toast messages */}
-        newestOnTop={true}  {/* New toast messages will be added on top */}
-        closeOnClick  {/* Allows to close the toast by clicking on it */}
-        pauseOnHover  {/* Pauses the auto-close timer if hovered */}
-        draggable  {/* Enables dragging of toast messages */}
-        theme="colored"  {/* Applies colored theme to toast messages */}
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
       />
 
-      <BrowserRouter>  {/* Manages navigation and routing for the app */}
-        <Navbar />  {/* Displays the navigation bar at the top */}
-        <main className="p-0 pt-16">  {/* Main content area with top padding to accommodate Navbar */}
-          <Routes>  {/* Declares all the available routes within the app */}
-            <Route path="/signup" element={<Signup />} />  {/* Path for signup page to register new users */}
-            <Route path="/login" element={<Login />} />  {/* Path for login page to authenticate users */}
+      <BrowserRouter>
+        <Navbar />
+        <main className="p-0 pt-16">
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
             <Route
               path="/create"
               element={
-                <ProtectedRoute>  {/* Ensures that CreatePost page is accessible only if authenticated */}
-                  <CreatePost />  {/* Page to create a new post */}
+                <ProtectedRoute>
+                  <CreatePost />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/posts"
               element={
-                <ProtectedRoute>  {/* Ensures that PostsList is accessible only to authenticated users */}
-                  <PostsList />  {/* Page that shows a list of posts */}
+                <ProtectedRoute>
+                  <PostsList />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/"
               element={
-                <ProtectedRoute>  {/* Ensures HomePage is accessible only after login */}
-                  <HomePage />  {/* Default landing page after authentication */}
+                <ProtectedRoute>
+                  <HomePage />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/chat"
               element={
-                <ProtectedRoute>  {/* Ensures chat functionality is secured for logged-in users */}
-                  <Chatai />  {/* Page to interact with chat AI */}
+                <ProtectedRoute>
+                  <Chatai />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/posts/:slug"
               element={
-                <ProtectedRoute>  {/* Secures individual post view page for authenticated users */}
-                  <PostView />  {/* Detail view for a specific post identified by slug */}
+                <ProtectedRoute>
+                  <PostView />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
               element={
-                <ProtectedRoute>  {/* Protects profile page, requiring user login */}
-                  <Profile />  {/* User's profile page to view and edit personal information */}
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
@@ -89,3 +90,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+```
