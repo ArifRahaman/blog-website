@@ -18,69 +18,69 @@ import HomePage from "./pages/Home";
 
 export default function App() {
   return (
-    <AuthProvider>  {/* Wrap the application with AuthProvider for authentication context */}
+    <AuthProvider>  {/* Provides authentication context to the entire app */}
       <ToastContainer
-        position="top-right"  {/* Position the toast notifications at the top-right corner */}
-        autoClose={3000}  {/* Automatically close the toast after 3000ms */}
-        hideProgressBar={false}  {/* Show the progress bar in the toast */}
-        newestOnTop={true}  {/* Display the newest toast on top */}
-        closeOnClick  {/* Allow closing the toast by clicking on it */}
-        pauseOnHover  {/* Pause the auto-close timer when hovering over the toast */}
-        draggable  {/* Allow dragging the toast */}
-        theme="colored"  {/* Use colored theme for the toast notifications */}
+        position="top-right"  {/* Toast messages appear in top-right corner */}
+        autoClose={3000}  {/* Toast messages close automatically after 3 seconds */}
+        hideProgressBar={false}  {/* Displays progress bar on toast messages */}
+        newestOnTop={true}  {/* New toast messages will be added on top */}
+        closeOnClick  {/* Allows to close the toast by clicking on it */}
+        pauseOnHover  {/* Pauses the auto-close timer if hovered */}
+        draggable  {/* Enables dragging of toast messages */}
+        theme="colored"  {/* Applies colored theme to toast messages */}
       />
 
-      <BrowserRouter>  {/* Use BrowserRouter for handling routing in the application */}
-        <Navbar />  {/* Render the Navbar component */}
-        <main className="p-0 pt-16">  {/* Main content area with padding */}
-          <Routes>  {/* Define the routes for the application */}
-            <Route path="/signup" element={<Signup />} />  {/* Route for signup page */}
-            <Route path="/login" element={<Login />} />  {/* Route for login page */}
+      <BrowserRouter>  {/* Manages navigation and routing for the app */}
+        <Navbar />  {/* Displays the navigation bar at the top */}
+        <main className="p-0 pt-16">  {/* Main content area with top padding to accommodate Navbar */}
+          <Routes>  {/* Declares all the available routes within the app */}
+            <Route path="/signup" element={<Signup />} />  {/* Path for signup page to register new users */}
+            <Route path="/login" element={<Login />} />  {/* Path for login page to authenticate users */}
             <Route
               path="/create"
               element={
-                <ProtectedRoute>  {/* Protect the CreatePost route */}
-                  <CreatePost />  {/* Render CreatePost component */}
+                <ProtectedRoute>  {/* Ensures that CreatePost page is accessible only if authenticated */}
+                  <CreatePost />  {/* Page to create a new post */}
                 </ProtectedRoute>
               }
             />
             <Route
               path="/posts"
               element={
-                <ProtectedRoute>  {/* Protect the PostsList route */}
-                  <PostsList />  {/* Render PostsList component */}
+                <ProtectedRoute>  {/* Ensures that PostsList is accessible only to authenticated users */}
+                  <PostsList />  {/* Page that shows a list of posts */}
                 </ProtectedRoute>
               }
             />
             <Route
               path="/"
               element={
-                <ProtectedRoute>  {/* Protect the HomePage route */}
-                  <HomePage />  {/* Render HomePage component */}
+                <ProtectedRoute>  {/* Ensures HomePage is accessible only after login */}
+                  <HomePage />  {/* Default landing page after authentication */}
                 </ProtectedRoute>
               }
             />
             <Route
               path="/chat"
               element={
-                <ProtectedRoute>  {/* Protect the Chatai route */}
-                  <Chatai />  {/* Render Chatai component */}
+                <ProtectedRoute>  {/* Ensures chat functionality is secured for logged-in users */}
+                  <Chatai />  {/* Page to interact with chat AI */}
                 </ProtectedRoute>
               }
             />
             <Route
               path="/posts/:slug"
               element={
-                <ProtectedRoute>  {/* Protect the PostView route */}
-                  <PostView />  {/* Render PostView component */}
+                <ProtectedRoute>  {/* Secures individual post view page for authenticated users */}
+                  <PostView />  {/* Detail view for a specific post identified by slug */}
                 </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
               element={
-                <ProtectedRoute>  {/* Protect the Profile route */}
-                  <Profile />  {/* Render Profile component */}
+                <ProtectedRoute>  {/* Protects profile page, requiring user login */}
+                  <Profile />  {/* User's profile page to view and edit personal information */}
                 </ProtectedRoute>
               }
             />
