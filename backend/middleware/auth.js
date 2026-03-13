@@ -1,41 +1,32 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
+const logger = require('../utils/logger'); // Assuming a logger utility is available
 
 const authMiddleware = async (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'No token' });
+  const authorizationHeader = req.header('Authorization');
+  const token = authorizationHeader?.replace('Bearer ', '');
+
+  if (!token) {
+    logger.warn('No token provided');
+    return res.status(401).json({ error: 'No token' });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) return res.status(401).json({ error: 'User not found' });
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decodedToken.id);
 
-    req.user = user;         // ✅ so you can access req.user._id
-    req.userId = user._id;   // optional for other routes
+    if (!user) {
+      logger.warn('User not found for token');
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    req.user = user;
+    req.userId = user._id;
     next();
-  } catch (err) {
+  } catch (error) {
+    logger.error('Token verification failed', error);
     res.status(401).json({ error: 'Invalid token' });
   }
 };
 
 module.exports = { authMiddleware };
-// middleware/auth.js
-// const jwt = require('jsonwebtoken');
-// const {User} = require('../models/User');
-
-// const authMiddleware = async (req, res, next) => {
-//   const hdr = req.headers.authorization || '';
-//   if (!hdr.startsWith('Bearer ')) return res.status(401).json({ error: 'Missing token' });
-//   const token = hdr.split(' ')[1];
-//   try {
-//     const payload = jwt.verify(token, process.env.JWT_SECRET);
-//     const user = await User.findById(payload.sub || payload.id);
-//     if (!user) return res.status(401).json({ error: 'User not found' });
-//     req.user = user;
-//     next();
-//   } catch (err) {
-//     console.error('Auth error', err);
-//     return res.status(401).json({ error: 'Invalid token' });
-//   }
-// };
-//  module.exports = { authMiddleware };
