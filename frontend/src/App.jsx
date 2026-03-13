@@ -17,9 +17,7 @@ import HomePage from "./pages/Home";
 
 export default function App() {
   return (
-    // Wrap the application with AuthProvider to manage authentication state
     <AuthProvider>
-      {/* Configure ToastContainer for displaying toast notifications */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -30,18 +28,12 @@ export default function App() {
         draggable
         theme="colored"
       />
-
-      {/* Set up routing for the application */}
       <BrowserRouter>
-        {/* Include the Navbar component */}
         <Navbar />
         <main className="p-0 pt-16">
           <Routes>
-            {/* Define route for Signup page */}
             <Route path="/signup" element={<Signup />} />
-            {/* Define route for Login page */}
             <Route path="/login" element={<Login />} />
-            {/* Define protected route for CreatePost page */}
             <Route
               path="/create"
               element={
@@ -50,7 +42,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Define protected route for PostsList page */}
             <Route
               path="/posts"
               element={
@@ -59,7 +50,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Define protected route for HomePage */}
             <Route
               path="/"
               element={
@@ -68,7 +58,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Define protected route for Chatai page */}
             <Route
               path="/chat"
               element={
@@ -77,7 +66,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Define protected route for viewing individual posts */}
             <Route
               path="/posts/:slug"
               element={
@@ -86,7 +74,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Define protected route for Profile page */}
             <Route
               path="/profile"
               element={
