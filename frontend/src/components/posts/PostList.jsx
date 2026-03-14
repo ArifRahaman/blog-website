@@ -4,16 +4,20 @@ import { motion } from "framer-motion";
 import "./grid.css";
 
 const BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const SECONDS_IN_MINUTE = 60;
+const MINUTES_IN_HOUR = 60;
+const HOURS_IN_DAY = 24;
+const DAYS_IN_MONTH = 30;
+const MONTHS_IN_YEAR = 12;
 
 export default function PostsList() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [q, setQ] = useState("");
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch posts from the API when the component mounts
     async function fetchPosts() {
       try {
         const res = await fetch(`${BASE}/api/posts`);
@@ -29,23 +33,21 @@ export default function PostsList() {
     fetchPosts();
   }, []);
 
-  // Calculate the time ago from the given ISO date string
   const timeAgo = (iso) => {
     if (!iso) return "";
     const seconds = Math.floor((Date.now() - new Date(iso)) / 1000);
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days}d`;
-    const months = Math.floor(days / 30);
-    if (months < 12) return `${months}mo`;
-    return `${Math.floor(months / 12)}y`;
+    if (seconds < SECONDS_IN_MINUTE) return `${seconds}s`;
+    const minutes = Math.floor(seconds / SECONDS_IN_MINUTE);
+    if (minutes < MINUTES_IN_HOUR) return `${minutes}m`;
+    const hours = Math.floor(minutes / MINUTES_IN_HOUR);
+    if (hours < HOURS_IN_DAY) return `${hours}h`;
+    const days = Math.floor(hours / HOURS_IN_DAY);
+    if (days < DAYS_IN_MONTH) return `${days}d`;
+    const months = Math.floor(days / DAYS_IN_MONTH);
+    if (months < MONTHS_IN_YEAR) return `${months}mo`;
+    return `${Math.floor(months / MONTHS_IN_YEAR)}y`;
   };
 
-  // Animation variants for the container and cards
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
@@ -55,15 +57,17 @@ export default function PostsList() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.36, ease: "easeOut" } },
   };
 
-  // Filter posts based on the search query
-  const filtered = posts.filter((p) => {
-    if (!q) return true;
-    const t = q.toLowerCase();
-    return (p.title || "").toLowerCase().includes(t) || (p.summary || "").toLowerCase().includes(t) || (p.tags || []).join(" ").toLowerCase().includes(t);
+  const filteredPosts = posts.filter((post) => {
+    if (!query) return true;
+    const lowerCaseQuery = query.toLowerCase();
+    return (
+      (post.title || "").toLowerCase().includes(lowerCaseQuery) ||
+      (post.summary || "").toLowerCase().includes(lowerCaseQuery) ||
+      (post.tags || []).join(" ").toLowerCase().includes(lowerCaseQuery)
+    );
   });
 
   if (loading)
-    // Display loading message while posts are being fetched
     return (
       <div className="bw-grid-bg min-h-screen flex items-center justify-center p-8">
         <motion.p className="text-gray-300 text-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -73,7 +77,6 @@ export default function PostsList() {
     );
 
   if (error)
-    // Display error message if fetching posts fails
     return (
       <div className="bw-grid-bg min-h-screen flex items-center justify-center p-8">
         <motion.p className="text-red-400 text-lg" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -93,15 +96,14 @@ export default function PostsList() {
           <div className="w-full sm:w-72">
             <label className="sr-only">Search posts</label>
             <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Search title, summary or tags..."
               className="w-full rounded-lg px-3 py-2 bg-black/50 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
         </div>
-        {filtered.length === 0 ? (
-          // Display message if no posts match the search query
+        {filteredPosts.length === 0 ? (
           <div className="py-12 text-center text-slate-300">No posts found.</div>
         ) : (
           <motion.div
@@ -110,8 +112,7 @@ export default function PostsList() {
             animate="visible"
             variants={containerVariants}
           >
-            {filtered.map((post) => {
-              // Determine the image source for the post
+            {filteredPosts.map((post) => {
               const imgSrc = post.coverUrl ? (post.coverUrl.startsWith("http") ? post.coverUrl : `${BASE}${post.coverUrl}`) : null;
               return (
                 <motion.article
