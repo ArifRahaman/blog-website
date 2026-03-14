@@ -2,166 +2,115 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-/**
- * PostView.jsx
- * - Full file: fetch post, show author, follow/unfollow, likes, comments
- */
+const API_BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const LOCAL_STORAGE_TOKEN_KEY = "token";
+const LOCAL_STORAGE_USER_KEY = "user";
+const LOCAL_STORAGE_ID_KEY = "id";
 
-export default function PostView() {
-  const { slug } = useParams();
-  const navigate = useNavigate();
+const fetchWithAuth = async (url, options = {}) => {
+  const token = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
+  const headers = token ? { Authorization: `Bearer ${token}`, ...options.headers } : options.headers;
+  const response = await fetch(url, { ...options, headers });
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(errorBody.error || `Request failed with status ${response.status}`);
+  }
+  return response.json();
+};
 
-  // post + UI state
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_USER_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+const getCurrentUserId = () => {
+  const storedUser = getStoredUser();
+  return (storedUser && (storedUser._id || storedUser.id)) || localStorage.getItem(LOCAL_STORAGE_ID_KEY) || null;
+};
+
+const getAuthorId = (author) => {
+  if (!author) return null;
+  return typeof author === "string" ? author : author._id || author.id || null;
+};
+
+const resolveImageUrl = (url) => {
+  if (!url) return null;
+  return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+};
+
+const usePostData = (slug, token, currentUserId) => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // interactions
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState("");
-  const [commentSubmitting, setCommentSubmitting] = useState(false);
-  const [likeProcessing, setLikeProcessing] = useState(false);
-
-  // follow-related
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
-  const [followProcessing, setFollowProcessing] = useState(false);
 
-  const BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
-  const token = localStorage.getItem("token") || null;
-
-  // read stored user robustly (works with {"id":..} or {"_id":..})
-  const storedUser = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "null");
-    } catch (e) {
-      return null;
-    }
-  })();
-  const currentUserId =
-    (storedUser && (storedUser._id || storedUser.id)) ||
-    localStorage.getItem("id") ||
-    null;
-
-  // helper: normalize author id whether it's object or string
-  function getAuthorId(author) {
-    if (!author) return null;
-    if (typeof author === "string") return author;
-    return author._id || author.id || null;
-  }
-
-  // image helper (local)
-  function resolveImageUrl(url) {
-    if (!url) return null;
-    return url.startsWith("http") ? url : `${BASE}${url}`;
-  }
-
-  // Fetch the post by slug
   useEffect(() => {
-    async function fetchPost() {
+    const fetchPost = async () => {
       setLoading(true);
       setError(null);
-
       try {
-        const res = await fetch(`${BASE}/api/posts/${encodeURIComponent(slug)}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-
-        if (res.status === 404) {
-          setError("Post not found");
-          setPost(null);
-          return;
-        }
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error || `Failed to fetch post (${res.status})`);
-        }
-
-        const data = await res.json();
+        const data = await fetchWithAuth(`${API_BASE_URL}/api/posts/${encodeURIComponent(slug)}`);
         setPost(data);
-
-        // initial likes/comments
         setLikes(Number(data.likes || 0));
         setComments(Array.isArray(data.comments) ? data.comments : []);
-
-        // derive follower info if author includes followers
         const author = data.author || {};
-        let fc = 0;
-        if (Array.isArray(author.followers)) {
-          fc = author.followers.length;
-          setIsFollowing(currentUserId ? author.followers.map(String).includes(String(currentUserId)) : false);
-        } else if (typeof author.followers === "number") {
-          fc = author.followers;
-          setIsFollowing(false);
-        } else {
-          fc = author.followersCount || author.followerCount || 0;
-          setIsFollowing(false);
-        }
+        const fc = Array.isArray(author.followers) ? author.followers.length : author.followersCount || author.followerCount || 0;
         setFollowerCount(fc);
+        setIsFollowing(currentUserId ? author.followers.map(String).includes(String(currentUserId)) : false);
       } catch (err) {
         console.error("fetchPost error:", err);
         setError(err.message || "Failed to load post");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     if (slug) fetchPost();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, token, currentUserId]);
 
-  // When post is available, fetch authoritative followers for the author
+  return { post, loading, error, likes, comments, isFollowing, followerCount, setPost, setLikes, setComments, setIsFollowing, setFollowerCount };
+};
+
+const useAuthorFollowers = (post, token, currentUserId, setPost, setFollowerCount, setIsFollowing) => {
   useEffect(() => {
     if (!post) return;
 
     const authorId = getAuthorId(post.author);
     const authorUsername = post.author && (post.author.username || post.author.name);
 
-    async function fetchFollowersForAuthor() {
+    const fetchFollowersForAuthor = async () => {
       const attempts = [];
-      if (authorId) attempts.push(`${BASE}/api/users/${authorId}/followers`);
-      if (authorUsername) attempts.push(`${BASE}/api/users/${authorUsername}/followers`);
-      if (authorId) attempts.push(`${BASE}/api/users/${authorId}`);
+      if (authorId) attempts.push(`${API_BASE_URL}/api/users/${authorId}/followers`);
+      if (authorUsername) attempts.push(`${API_BASE_URL}/api/users/${authorUsername}/followers`);
+      if (authorId) attempts.push(`${API_BASE_URL}/api/users/${authorId}`);
 
       let got = false;
       for (const url of attempts) {
         try {
-          const res = await fetch(url, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-          if (!res.ok) continue;
-          const json = await res.json().catch(() => ({}));
-
-          // array response => followers list
+          const json = await fetchWithAuth(url);
           if (Array.isArray(json)) {
             setFollowerCount(json.length);
-            setIsFollowing(
-              Boolean(currentUserId) && json.map(String).includes(String(currentUserId))
-            );
+            setIsFollowing(Boolean(currentUserId) && json.map(String).includes(String(currentUserId)));
             got = true;
             break;
           }
-
-          // { followers: [...] }
           if (json && Array.isArray(json.followers)) {
             setFollowerCount(json.followers.length);
-            setIsFollowing(
-              Boolean(currentUserId) && json.followers.map(String).includes(String(currentUserId))
-            );
-            // merge any returned author fields
+            setIsFollowing(Boolean(currentUserId) && json.followers.map(String).includes(String(currentUserId)));
             if (json._id || json.username) {
               setPost((p) => (p ? { ...p, author: { ...p.author, ...json } } : p));
             }
             got = true;
             break;
           }
-
-          // user object with followers or followersCount
           if (json && (json._id || json.username) && (json.followers || typeof json.followersCount !== "undefined")) {
-            const count = Array.isArray(json.followers)
-              ? json.followers.length
-              : json.followersCount ?? json.followerCount ?? 0;
+            const count = Array.isArray(json.followers) ? json.followers.length : json.followersCount ?? json.followerCount ?? 0;
             setFollowerCount(count);
             if (Array.isArray(json.followers)) {
               setIsFollowing(json.followers.map(String).includes(String(currentUserId)));
@@ -178,13 +127,41 @@ export default function PostView() {
       if (!got) {
         console.warn("Could not fetch followers for author", authorId || authorUsername);
       }
-    }
+    };
 
     fetchFollowersForAuthor();
-  }, [post, token, currentUserId]);
+  }, [post, token, currentUserId, setPost, setFollowerCount, setIsFollowing]);
+};
 
-  // FOLLOW / UNFOLLOW (toggle) with optimistic UI and merge fallback
-  async function handleFollow() {
+const PostView = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const token = localStorage.getItem(LOCAL_STORAGE_TOKEN_KEY);
+  const currentUserId = getCurrentUserId();
+
+  const {
+    post,
+    loading,
+    error,
+    likes,
+    comments,
+    isFollowing,
+    followerCount,
+    setPost,
+    setLikes,
+    setComments,
+    setIsFollowing,
+    setFollowerCount,
+  } = usePostData(slug, token, currentUserId);
+
+  useAuthorFollowers(post, token, currentUserId, setPost, setFollowerCount, setIsFollowing);
+
+  const [commentText, setCommentText] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [likeProcessing, setLikeProcessing] = useState(false);
+  const [followProcessing, setFollowProcessing] = useState(false);
+
+  const handleFollow = async () => {
     if (!token) {
       toast.error("Please log in to follow users");
       return;
@@ -206,80 +183,51 @@ export default function PostView() {
 
     const prevFollowing = isFollowing;
     const prevCount = followerCount;
-    // optimistic
     setIsFollowing(!prevFollowing);
     setFollowerCount((c) => (prevFollowing ? Math.max(0, c - 1) : c + 1));
 
     try {
-      const res = await fetch(`${BASE}/api/users/${authorId}/follow`, {
+      const body = await fetchWithAuth(`${API_BASE_URL}/api/users/${authorId}/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
-      const body = await res.json().catch(() => ({}));
-      console.log("follow response:", body);
+      if (typeof body.followerCount !== "undefined") setFollowerCount(Number(body.followerCount));
+      if (typeof body.isFollowing === "boolean") setIsFollowing(body.isFollowing);
 
-      if (!res.ok) throw new Error(body.error || `Failed to follow user (${res.status})`);
-
-      // If backend gave canonical follower info, use it
-      if (typeof body.followerCount !== "undefined" || typeof body.isFollowing !== "undefined" || body.author) {
-        if (typeof body.followerCount !== "undefined") setFollowerCount(Number(body.followerCount));
-        if (typeof body.isFollowing === "boolean") setIsFollowing(body.isFollowing);
-
-        if (body.author) {
-          // merge sanitized author into post state
-          setPost((p) => (p ? { ...p, author: { ...p.author, ...body.author } } : p));
-          // if author.followers array returned, compute count & isFollowing
-          if (Array.isArray(body.author.followers)) {
-            setFollowerCount(body.author.followers.length);
-            setIsFollowing(body.author.followers.map(String).includes(String(currentUserId)));
-          }
+      if (body.author) {
+        setPost((p) => (p ? { ...p, author: { ...p.author, ...body.author } } : p));
+        if (Array.isArray(body.author.followers)) {
+          setFollowerCount(body.author.followers.length);
+          setIsFollowing(body.author.followers.map(String).includes(String(currentUserId)));
         }
       } else if (Array.isArray(body.followers)) {
-        // root-level followers array returned
         setFollowerCount(body.followers.length);
         setIsFollowing(body.followers.map(String).includes(String(currentUserId)));
       } else {
-        // fallback: re-fetch the post to get canonical author state
-        try {
-          const postRes = await fetch(`${BASE}/api/posts/${encodeURIComponent(slug)}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-          if (postRes.ok) {
-            const updatedPost = await postRes.json();
-            setPost(updatedPost);
-            const a = updatedPost.author || {};
-            if (Array.isArray(a.followers)) {
-              setFollowerCount(a.followers.length);
-              setIsFollowing(a.followers.map(String).includes(String(currentUserId)));
-            } else {
-              setFollowerCount(a.followersCount ?? a.followerCount ?? prevCount);
-            }
-          } else {
-            console.warn("Could not re-fetch post after follow:", postRes.status);
-          }
-        } catch (errRefetch) {
-          console.warn("Failed to re-fetch post after follow:", errRefetch);
+        const updatedPost = await fetchWithAuth(`${API_BASE_URL}/api/posts/${encodeURIComponent(slug)}`);
+        setPost(updatedPost);
+        const a = updatedPost.author || {};
+        if (Array.isArray(a.followers)) {
+          setFollowerCount(a.followers.length);
+          setIsFollowing(a.followers.map(String).includes(String(currentUserId)));
+        } else {
+          setFollowerCount(a.followersCount ?? a.followerCount ?? prevCount);
         }
       }
 
       toast.success(body.message || (prevFollowing ? "Unfollowed" : "Followed"));
     } catch (err) {
       console.error("follow error:", err);
-      // rollback optimistic UI
       setIsFollowing(prevFollowing);
       setFollowerCount(prevCount);
       toast.error(err.message || "Failed to update follow status");
     } finally {
       setFollowProcessing(false);
     }
-  }
+  };
 
-  // LIKE
-  async function handleLike() {
+  const handleLike = async () => {
     if (!token) {
       toast.error("Please log in to like posts");
       return;
@@ -290,17 +238,10 @@ export default function PostView() {
     setLikeProcessing(true);
 
     try {
-      const res = await fetch(`${BASE}/api/posts/${post._id}/like`, {
+      const json = await fetchWithAuth(`${API_BASE_URL}/api/posts/${post._id}/like`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Failed to like post (${res.status})`);
-      }
-
-      const json = await res.json();
       const newLikes = Number(json.likes ?? likes);
       setLikes(newLikes);
       setPost((p) => (p ? { ...p, likes: newLikes } : p));
@@ -310,10 +251,9 @@ export default function PostView() {
     } finally {
       setLikeProcessing(false);
     }
-  }
+  };
 
-  // ADD COMMENT
-  async function handleAddComment(e) {
+  const handleAddComment = async (e) => {
     e?.preventDefault?.();
     if (!token) {
       toast.error("Please login");
@@ -327,21 +267,12 @@ export default function PostView() {
 
     setCommentSubmitting(true);
     try {
-      const res = await fetch(`${BASE}/api/posts/${post._id}/comments`, {
+      const createdComment = await fetchWithAuth(`${API_BASE_URL}/api/posts/${post._id}/comments`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: commentText.trim() }),
       });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Failed to add comment");
-      }
-
-      const createdComment = await res.json();
       setComments((prev) => [...prev, createdComment]);
       setCommentText("");
       toast.success("Comment added");
@@ -351,7 +282,7 @@ export default function PostView() {
     } finally {
       setCommentSubmitting(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -389,7 +320,6 @@ export default function PostView() {
       </button>
 
       <article className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-        {/* Header */}
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
@@ -412,13 +342,11 @@ export default function PostView() {
             </div>
           </div>
 
-          {/* Follow button */}
           <div className="flex items-center gap-3">
             {(() => {
               const authorId = getAuthorId(post.author);
               const showFollow = currentUserId && authorId && String(currentUserId) !== String(authorId);
               if (!showFollow) {
-                // Optionally show "Edit" or nothing when this is your own post
                 return null;
               }
 
@@ -438,7 +366,6 @@ export default function PostView() {
           </div>
         </header>
 
-        {/* Cover Image */}
         {cover && (
           <img
             src={cover}
@@ -447,13 +374,11 @@ export default function PostView() {
           />
         )}
 
-        {/* Content */}
         <div
           className="prose prose-lg max-w-none mb-6 text-gray-800"
           dangerouslySetInnerHTML={{ __html: post.content || "" }}
         />
 
-        {/* Actions Bar */}
         <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4 border">
           <div className="flex items-center gap-4">
             <button
@@ -473,7 +398,6 @@ export default function PostView() {
           </div>
         </div>
 
-        {/* Comments Section */}
         <section className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Comments</h3>
 
@@ -503,7 +427,6 @@ export default function PostView() {
             </ul>
           )}
 
-          {/* Add Comment Form */}
           <form onSubmit={handleAddComment} className="mt-6 bg-gray-50 p-4 rounded-lg border">
             <textarea
               value={commentText}
@@ -535,5 +458,6 @@ export default function PostView() {
       </article>
     </div>
   );
-}
+};
 
+export default PostView;
